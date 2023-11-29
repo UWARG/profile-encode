@@ -33,17 +33,29 @@ subsamples = [
 # "variable" means setting the video to a constant 10s
 output_fps = ["variable", 30, 60, 120]
 
-# Create results dictionary/object
-results = dict.fromkeys(
-    [str(ofps) for ofps in output_fps],
-    dict.fromkeys(
-        subsamples,
-        dict.fromkeys(
-            [str(sfps) for sfps in simulated_fps],
-            None  # Cannot initialize a list because somehow they all share the same address if done here
-        )
-    )
-)
+# Initialize results dictionary/object
+results = {
+    str(ofps) : {
+        subsample : {
+            str(sfps) : [] for sfps in simulated_fps
+        } for subsample in subsamples
+    } for ofps in output_fps
+}
+
+# test_obj = {"test": "hello", "thing": 2, "mutable": [123, 456]}
+# test_list = []
+# test_list.append(copy.deepcopy(test_obj))
+# results["variable"]["yuv420p"]["30"].append(test_obj)
+# test_obj = {"test": "goodbye", "thing": -1, "mutable": [789, 123]}
+# test_list = []
+# test_list.append(copy.deepcopy(test_obj))
+# results["variable"]["yuv422p"]["30"].append(copy.deepcopy(test_obj))
+# results["variable"]["yuv444p"]["30"].append(copy.deepcopy(test_obj))
+# print(json.dumps(results, indent=2))
+# input()
+# results["variable"]["yuv422p"]["30"][0]["mutable"][0] = -1342342
+# print(json.dumps(results, indent=2))
+# input()
 
 # Make output location
 if not os.path.exists("./results"):
@@ -61,7 +73,6 @@ for ofps in output_fps:
     
     for subsample in subsamples:
         for sfps in simulated_fps:
-            repeated_results = []
             # Repeat the test
             for i in range(NUM_REPEATS):
                 test_result = {
@@ -120,10 +131,10 @@ for ofps in output_fps:
                 test_result["avg_time"] = test_result["total_time"]/test_result["frame_count"]
                 test_result["avg_space"] = test_result["total_space"]/test_result["frame_count"]
                 test_result["file_size"] = os.path.getsize(f"./results/{str(ofps)}_fps/{FILE_NAME}")
-                repeated_results.append(test_result)
+                # Add repeated results to the real results
+                results[str(ofps)][subsample][str(sfps)].append(test_result)
             
-            # Add repeated results to the real results
-            results[str(ofps)][subsample][str(sfps)] = repeated_results
+            # Add print runtime test progress
             print(f"./results/{str(ofps)}_fps/{FILE_NAME}",
                 "completed:  ~",
                 round(os.path.getsize(f"./results/{str(ofps)}_fps/{FILE_NAME}")/(2**20), 2),
