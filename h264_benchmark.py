@@ -113,14 +113,14 @@ for ofps in output_fps:
                 if(i == 0):
                     packets = stream.encode(None)
                     container.mux(packets)
-
+                
+                container.close()
+                
                 # Save results
                 test_result["avg_time"] = test_result["total_time"]/test_result["frame_count"]
                 test_result["avg_space"] = test_result["total_space"]/test_result["frame_count"]
                 test_result["file_size"] = os.path.getsize(f"./results/{str(ofps)}_fps/{FILE_NAME}")
                 repeated_results.append(test_result)
-
-                container.close()
             
             # Add repeated results to the real results
             results[str(ofps)][subsample][str(sfps)] = repeated_results
