@@ -42,21 +42,6 @@ results = {
     } for ofps in output_fps
 }
 
-# test_obj = {"test": "hello", "thing": 2, "mutable": [123, 456]}
-# test_list = []
-# test_list.append(copy.deepcopy(test_obj))
-# results["variable"]["yuv420p"]["30"].append(test_obj)
-# test_obj = {"test": "goodbye", "thing": -1, "mutable": [789, 123]}
-# test_list = []
-# test_list.append(copy.deepcopy(test_obj))
-# results["variable"]["yuv422p"]["30"].append(copy.deepcopy(test_obj))
-# results["variable"]["yuv444p"]["30"].append(copy.deepcopy(test_obj))
-# print(json.dumps(results, indent=2))
-# input()
-# results["variable"]["yuv422p"]["30"][0]["mutable"][0] = -1342342
-# print(json.dumps(results, indent=2))
-# input()
-
 # Make output location
 if not os.path.exists("./results"):
     os.mkdir("./results")
