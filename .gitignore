@@ -6,5 +6,13 @@
 __pycache__/
 venv/
 
+in_images/
+out_images/
+parsed_images/
+results/
+test_images/
+*.mp4
+*.h264
+
 # Logging
 *log*
