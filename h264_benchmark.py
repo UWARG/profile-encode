@@ -124,7 +124,7 @@ for ofps in output_fps:
             
             # Add repeated results to the real results
             results[str(ofps)][subsample][str(sfps)] = repeated_results
-            print(f"./results/{str(ofps)}/{FILE_NAME}",
+            print(f"./results/{str(ofps)}_fps/{FILE_NAME}",
                 "completed:  ~",
                 round(os.path.getsize(f"./results/{str(ofps)}_fps/{FILE_NAME}")/(2**20), 2),
                 "MB"

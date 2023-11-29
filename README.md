@@ -23,58 +23,79 @@ For reference, all the pictures added together takes 980 MB (all units are scale
 (video length is constant at 10 seconds, just like the real video)
 Picture quality is good.
 ```
-./results/h264_yuv420p_30fps.mp4 completed: 10.12 MB
-./results/h264_yuv420p_15fps.mp4 completed: 10.29 MB
-./results/h264_yuv420p_10fps.mp4 completed: 10.41 MB
-./results/h264_yuv420p_5fps.mp4 completed: 10.7 MB
-./results/h264_yuv420p_1fps.mp4 completed: 10.61 MB
-./results/h264_yuv422p_30fps.mp4 completed: 10.12 MB
-./results/h264_yuv422p_15fps.mp4 completed: 10.35 MB
-./results/h264_yuv422p_10fps.mp4 completed: 10.42 MB
-./results/h264_yuv422p_5fps.mp4 completed: 10.97 MB
-./results/h264_yuv422p_1fps.mp4 completed: 11.17 MB
-./results/h264_yuv444p_30fps.mp4 completed: 10.12 MB
-./results/h264_yuv444p_15fps.mp4 completed: 10.33 MB
-./results/h264_yuv444p_10fps.mp4 completed: 10.4 MB
-./results/h264_yuv444p_5fps.mp4 completed: 10.93 MB
-./results/h264_yuv444p_1fps.mp4 completed: 11.08 MB
+./results/variable_fps/h264_yuv420p_30fps.mp4 completed: 10.12 MB
+./results/variable_fps/h264_yuv420p_15fps.mp4 completed: 10.29 MB
+./results/variable_fps/h264_yuv420p_10fps.mp4 completed: 10.41 MB
+./results/variable_fps/h264_yuv420p_5fps.mp4 completed: 10.7 MB
+./results/variable_fps/h264_yuv420p_1fps.mp4 completed: 10.61 MB
+./results/variable_fps/h264_yuv422p_30fps.mp4 completed: 10.12 MB
+./results/variable_fps/h264_yuv422p_15fps.mp4 completed: 10.35 MB
+./results/variable_fps/h264_yuv422p_10fps.mp4 completed: 10.42 MB
+./results/variable_fps/h264_yuv422p_5fps.mp4 completed: 10.97 MB
+./results/variable_fps/h264_yuv422p_1fps.mp4 completed: 11.17 MB
+./results/variable_fps/h264_yuv444p_30fps.mp4 completed: 10.12 MB
+./results/variable_fps/h264_yuv444p_15fps.mp4 completed: 10.33 MB
+./results/variable_fps/h264_yuv444p_10fps.mp4 completed: 10.4 MB
+./results/variable_fps/h264_yuv444p_5fps.mp4 completed: 10.93 MB
+./results/variable_fps/h264_yuv444p_1fps.mp4 completed: 11.08 MB
 ```
 ### 30fps
 Picutre quality is good (since this is basically the same as variable fps setting).
 ```
-./results/h264_yuv420p_30fps.mp4 completed: 10.12 MB
-./results/h264_yuv420p_15fps.mp4 completed: 5.19 MB
-./results/h264_yuv420p_10fps.mp4 completed: 3.53 MB
-./results/h264_yuv420p_5fps.mp4 completed: 1.89 MB
-./results/h264_yuv420p_1fps.mp4 completed: 0.57 MB
-./results/h264_yuv422p_30fps.mp4 completed: 10.12 MB
-./results/h264_yuv422p_15fps.mp4 completed: 5.25 MB
-./results/h264_yuv422p_10fps.mp4 completed: 3.55 MB
-./results/h264_yuv422p_5fps.mp4 completed: 1.93 MB
-./results/h264_yuv422p_1fps.mp4 completed: 0.57 MB
-./results/h264_yuv444p_30fps.mp4 completed: 10.12 MB
-./results/h264_yuv444p_15fps.mp4 completed: 5.24 MB
-./results/h264_yuv444p_10fps.mp4 completed: 3.55 MB
-./results/h264_yuv444p_5fps.mp4 completed: 1.91 MB
-./results/h264_yuv444p_1fps.mp4 completed: 0.57 MB
+./results/30_fps/h264_yuv420p_30fps.mp4 completed: 10.12 MB
+./results/30_fps/h264_yuv420p_15fps.mp4 completed: 5.19 MB
+./results/30_fps/h264_yuv420p_10fps.mp4 completed: 3.53 MB
+./results/30_fps/h264_yuv420p_5fps.mp4 completed: 1.89 MB
+./results/30_fps/h264_yuv420p_1fps.mp4 completed: 0.57 MB
+./results/30_fps/h264_yuv422p_30fps.mp4 completed: 10.12 MB
+./results/30_fps/h264_yuv422p_15fps.mp4 completed: 5.25 MB
+./results/30_fps/h264_yuv422p_10fps.mp4 completed: 3.55 MB
+./results/30_fps/h264_yuv422p_5fps.mp4 completed: 1.93 MB
+./results/30_fps/h264_yuv422p_1fps.mp4 completed: 0.57 MB
+./results/30_fps/h264_yuv444p_30fps.mp4 completed: 10.12 MB
+./results/30_fps/h264_yuv444p_15fps.mp4 completed: 5.24 MB
+./results/30_fps/h264_yuv444p_10fps.mp4 completed: 3.55 MB
+./results/30_fps/h264_yuv444p_5fps.mp4 completed: 1.91 MB
+./results/30_fps/h264_yuv444p_1fps.mp4 completed: 0.57 MB
+```
+### 60fps
+Picture quality is beginning to suffer (for the simulated 1fps)
+The other ones look fine.
+```
+./results/60_fps/h264_yuv420p_30fps.mp4 completed:  ~ 5.07 MB
+./results/60_fps/h264_yuv420p_15fps.mp4 completed:  ~ 2.63 MB
+./results/60_fps/h264_yuv420p_10fps.mp4 completed:  ~ 1.79 MB
+./results/60_fps/h264_yuv420p_5fps.mp4 completed:  ~ 0.96 MB
+./results/60_fps/h264_yuv420p_1fps.mp4 completed:  ~ 0.25 MB
+./results/60_fps/h264_yuv422p_30fps.mp4 completed:  ~ 5.08 MB
+./results/60_fps/h264_yuv422p_15fps.mp4 completed:  ~ 2.67 MB
+./results/60_fps/h264_yuv422p_10fps.mp4 completed:  ~ 1.81 MB
+./results/60_fps/h264_yuv422p_5fps.mp4 completed:  ~ 0.97 MB
+./results/60_fps/h264_yuv422p_1fps.mp4 completed:  ~ 0.25 MB
+./results/60_fps/h264_yuv444p_30fps.mp4 completed:  ~ 5.08 MB
+./results/60_fps/h264_yuv444p_15fps.mp4 completed:  ~ 2.66 MB
+./results/60_fps/h264_yuv444p_10fps.mp4 completed:  ~ 1.81 MB
+./results/60_fps/h264_yuv444p_5fps.mp4 completed:  ~ 0.97 MB
+./results/60_fps/h264_yuv444p_1fps.mp4 completed:  ~ 0.25 MB
 ```
 ### 120fps
-Picture quality is terrible. Visible squares, things are looking mismatched.
+Picture quality is terrible. Visible squares, things are looking mismatched (for the simulated 1fps).
+The simulated 30fps one still looks fine.
 No longer able to see the H on the landing pad, it is just a big blur.
 ```
-./results/h264_yuv420p_30fps.mp4 completed: 2.51 MB
-./results/h264_yuv420p_15fps.mp4 completed: 1.31 MB
-./results/h264_yuv420p_10fps.mp4 completed: 0.9 MB
-./results/h264_yuv420p_5fps.mp4 completed: 0.47 MB
-./results/h264_yuv420p_1fps.mp4 completed: 0.11 MB
-./results/h264_yuv422p_30fps.mp4 completed: 2.53 MB
-./results/h264_yuv422p_15fps.mp4 completed: 1.33 MB
-./results/h264_yuv422p_10fps.mp4 completed: 0.91 MB
-./results/h264_yuv422p_5fps.mp4 completed: 0.47 MB
-./results/h264_yuv422p_1fps.mp4 completed: 0.11 MB
-./results/h264_yuv444p_30fps.mp4 completed: 2.53 MB
-./results/h264_yuv444p_15fps.mp4 completed: 1.33 MB
-./results/h264_yuv444p_10fps.mp4 completed: 0.91 MB
-./results/h264_yuv444p_5fps.mp4 completed: 0.47 MB
-./results/h264_yuv444p_1fps.mp4 completed: 0.11 MB
+./results/120_fps/h264_yuv420p_30fps.mp4 completed: 2.51 MB
+./results/120_fps/h264_yuv420p_15fps.mp4 completed: 1.31 MB
+./results/120_fps/h264_yuv420p_10fps.mp4 completed: 0.9 MB
+./results/120_fps/h264_yuv420p_5fps.mp4 completed: 0.47 MB
+./results/120_fps/h264_yuv420p_1fps.mp4 completed: 0.11 MB
+./results/120_fps/h264_yuv422p_30fps.mp4 completed: 2.53 MB
+./results/120_fps/h264_yuv422p_15fps.mp4 completed: 1.33 MB
+./results/120_fps/h264_yuv422p_10fps.mp4 completed: 0.91 MB
+./results/120_fps/h264_yuv422p_5fps.mp4 completed: 0.47 MB
+./results/120_fps/h264_yuv422p_1fps.mp4 completed: 0.11 MB
+./results/120_fps/h264_yuv444p_30fps.mp4 completed: 2.53 MB
+./results/120_fps/h264_yuv444p_15fps.mp4 completed: 1.33 MB
+./results/120_fps/h264_yuv444p_10fps.mp4 completed: 0.91 MB
+./results/120_fps/h264_yuv444p_5fps.mp4 completed: 0.47 MB
+./results/120_fps/h264_yuv444p_1fps.mp4 completed: 0.11 MB
 ```
