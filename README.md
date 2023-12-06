@@ -3,8 +3,9 @@
 Profile usage of time and space of various image encoders.
 
 ## PNG
-The entire test takes a very long time run (~45min), and uses approximately 3GB of memory.
-The compress levels 7-9 are not used because they take too long and do not finish within 1s/image
+The entire test takes a very long time run (~45min), and uses approximately 20MB of memory.
+`compress_level` of 7-9 are not used because they take too long and do not finish within 1s/image.
+`compress_level=0` is not used because that indicates no compression (raw ARGB format).
 The results of the test are uploaded to the [Autonomy OneDrive](https://uofwaterloo-my.sharepoint.com/:f:/r/personal/uwarg_uwaterloo_ca/Documents/Subteam%20Folders/Autonomy/Encode%20Test%20Results%202024/PNG?csf=1&web=1&e=Fx69iE).
 
 ### Quick recap of test results
