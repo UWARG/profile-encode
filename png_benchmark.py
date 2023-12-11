@@ -2,8 +2,9 @@
 Benchmarks PNG compression time and size (the ratio of the compressed image to the original image)
 on a given set of images (300 landing pad images captured from a flight test).
 
-Creates a log folder with a compressed image for each quality setting to visually check the quality,
-as well as a .json with the test data and a .csv which provides a more human-friendly summary of the data.
+Creates a folder with a compressed image for each quality setting to visually check the quality,
+as well as a .json with the test data and a .csv which provides a more human-friendly summary
+of the data.
 """
 import gc
 import io
@@ -16,7 +17,7 @@ from PIL import Image
 
 
 # Setting parameters
-FRAME_COUNT = 10  # Total number of frames
+FRAME_COUNT = 300  # Total number of frames
 FRAME_TO_SAVE = 69  # This frame is good, it has both landing pads in it
 INPUT_PATH = pathlib.Path("test_images", "Encode Test Dataset 2024")
 OUTPUT_PATH = pathlib.Path(f"log_{int(time.time())}")
@@ -31,10 +32,26 @@ AVG_TIME_MS = "avg_time_ms"
 MAX_SIZE_B = "max_size_B"
 MIN_SIZE_B = "min_size_B"
 AVG_SIZE_B = "avg_size_B"
-MAX_RATIO_COMPRESSED_TO_ORIGINAL = "max_size_ratio_compressed_to_original_%"
-MIN_RATIO_COMPRESSED_TO_ORIGINAL = "min_size_ratio_compressed_to_original_%"
-AVG_RATIO_COMPRESSED_TO_ORIGINAL = "avg_size_ratio_compressed_to_original_%"
+MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL = "max_size_ratio_compressed_to_original_%"
+MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL = "min_size_ratio_compressed_to_original_%"
+AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL = "avg_size_ratio_compressed_to_original_%"
 FRAME_DATA = "frame_data"
+
+# For output csv file
+HEADERS = [
+    "Compression Type",
+    "Compression Level",
+    "Max Time (ms)",
+    "Min Time (ms)",
+    "Avg Time (ms)",
+    "Max Size (B)",
+    "Min Size (B)",
+    "Avg Size (B)",
+    "Max Size Ratio (compressed to original in %)",
+    "Min Size Ratio (compressed to original in %)",
+    "Avg Size Ratio (compressed to original in %)"
+]
+HEADER_LINE = ",".join(HEADERS) + "\n"
 
 
 if __name__ == "__main__":
@@ -49,9 +66,9 @@ if __name__ == "__main__":
                 MAX_SIZE_B: 0,
                 MIN_SIZE_B: 0,
                 AVG_SIZE_B: 0,
-                MAX_RATIO_COMPRESSED_TO_ORIGINAL: 0,  # % of original size
-                MIN_RATIO_COMPRESSED_TO_ORIGINAL: 0,
-                AVG_RATIO_COMPRESSED_TO_ORIGINAL: 0,
+                MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,  # % of original size
+                MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,
+                AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,
                 FRAME_DATA: []
             } for compress_level in range(INITIAL_COMPRESS_LEVEL, MAX_COMPRESS_LEVEL + 1)
         } for compress_type in COMPRESS_TYPES
@@ -73,6 +90,7 @@ if __name__ == "__main__":
             max_compression_ratio = 0
             min_compression_ratio = float("inf")
             total_compression_ratio = 0
+            current_result = results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"]
             for frame_index in range(FRAME_COUNT):
                 img = Image.open(pathlib.Path(INPUT_PATH, f"{frame_index}.png"))
                 buffer = io.BytesIO()
@@ -80,30 +98,37 @@ if __name__ == "__main__":
                 # Running encode
                 gc.disable()
                 start = time.time_ns()
-                img.save(buffer, format="PNG", compress_level=compress_level, compress_type=compress_type)
+                img.save(
+                    buffer,
+                    format="PNG",
+                    compress_level=compress_level,
+                    compress_type=compress_type
+                )
                 end = time.time_ns()
                 gc.enable()
 
                 # Save singular test results
                 time_ns = end - start
                 size_B = buffer.getbuffer().nbytes
-                compression_ratio = size_B / os.path.getsize(pathlib.Path(INPUT_PATH, f"{frame_index}.png")) * 100
+                compression_ratio = 100 * size_B / os.path.getsize(
+                    pathlib.Path(INPUT_PATH, f"{frame_index}.png")
+                )
 
                 if time_ns > max_time_ns:
                     max_time_ns = time_ns
                 elif time_ns < min_time_ns:
                     min_time_ns = time_ns
-                
+
                 if size_B > max_size_B:
                     max_size_B = size_B
                 elif size_B < min_size_B:
                     min_size_B = size_B
-                
+
                 if compression_ratio > max_compression_ratio:
                     max_compression_ratio = compression_ratio
                 elif compression_ratio < min_compression_ratio:
                     min_compression_ratio = compression_ratio
-                
+
                 total_time_ns += time_ns
                 total_size_B += size_B
                 total_compression_ratio += compression_ratio
@@ -112,41 +137,65 @@ if __name__ == "__main__":
                     "size_B": size_B,
                     "size_ratio_compressed_to_original_%": compression_ratio
                 }
-                results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"]["frame_data"].append(test_result)
+                current_result["frame_data"].append(test_result)
 
                 # Save one image (this one has 2 landing pads in it) for reference
                 if frame_index == FRAME_TO_SAVE:
-                    img.save(pathlib.Path(OUTPUT_PATH, f"ct{compress_type}_cl{compress_level}.png"), "PNG", compress_level=compress_level, compress_type=compress_type)
-            
+                    img.save(
+                        pathlib.Path(OUTPUT_PATH, f"ct{compress_type}_cl{compress_level}.png"),
+                        format="PNG",
+                        compress_level=compress_level,
+                        compress_type=compress_type
+                    )
+
             # Save average test results
-            results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"][MAX_TIME_MS] = max_time_ns / 1e6
-            results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"][MIN_TIME_MS] = min_time_ns / 1e6
-            results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"][AVG_TIME_MS] = total_time_ns / FRAME_COUNT / 1e6
-            results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"][MAX_SIZE_B] = max_size_B
-            results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"][MIN_SIZE_B] = min_size_B
-            results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"][AVG_SIZE_B] = total_size_B / FRAME_COUNT
-            results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"][MAX_RATIO_COMPRESSED_TO_ORIGINAL] = max_compression_ratio
-            results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"][MIN_RATIO_COMPRESSED_TO_ORIGINAL] = min_compression_ratio
-            results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"][AVG_RATIO_COMPRESSED_TO_ORIGINAL] = total_compression_ratio / FRAME_COUNT
+            current_result[MAX_TIME_MS] = max_time_ns / 1e6
+            current_result[MIN_TIME_MS] = min_time_ns / 1e6
+            current_result[AVG_TIME_MS] = total_time_ns / FRAME_COUNT / 1e6
+            current_result[MAX_SIZE_B] = max_size_B
+            current_result[MIN_SIZE_B] = min_size_B
+            current_result[AVG_SIZE_B] = total_size_B / FRAME_COUNT
+            current_result[MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = max_compression_ratio
+            current_result[MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = min_compression_ratio
+            current_result[AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = total_compression_ratio / FRAME_COUNT
             print(f"Compress level {compress_level} complete")
-    
-    print()
+
+    print("")
     print("-------------------TEST COMPLETED------------------")
-    print()
-    
+    print("")
+
     # Saving full results
     with open(pathlib.Path(OUTPUT_PATH, "results.json"), 'w', encoding="utf-8") as file:
         file.write(json.dumps(results, indent=2))
-    
+
     # Saving shortcut results without frame data (for more human readability)
     with open(pathlib.Path(OUTPUT_PATH, "summary.csv"), 'w', encoding="utf-8") as file:
-        file.write("Compression Type,Compression Level,Max Time (ms),Min Time (ms),Avg Time (ms),Max Size (B),Min Size (B),Avg Size (B),Max Size Ratio (compressed to original in %),Min Size Ratio (compressed to original in %),Avg Size Ratio (compressed to original in %)\n")
+        file.write(HEADER_LINE)
         for compress_type in COMPRESS_TYPES:
             for compress_level in range(INITIAL_COMPRESS_LEVEL, MAX_COMPRESS_LEVEL + 1):
                 current_result = results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"]
-                line = f"{compress_type},{compress_level},{current_result[MAX_TIME_MS]},{current_result[MIN_TIME_MS]},{current_result[AVG_TIME_MS]},{current_result[MAX_SIZE_B]},{current_result[MIN_SIZE_B]},{current_result[AVG_SIZE_B]},{current_result[MAX_RATIO_COMPRESSED_TO_ORIGINAL]},{current_result[MIN_RATIO_COMPRESSED_TO_ORIGINAL]},{current_result[AVG_RATIO_COMPRESSED_TO_ORIGINAL]}\n"
+                line_stats = [
+                    str(compress_type),
+                    str(compress_level),
+                    str(current_result[MAX_TIME_MS]),
+                    str(current_result[MIN_TIME_MS]),
+                    str(current_result[AVG_TIME_MS]),
+                    str(current_result[MAX_SIZE_B]),
+                    str(current_result[MIN_SIZE_B]),
+                    str(current_result[AVG_SIZE_B]),
+                    str(current_result[MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL]),
+                    str(current_result[MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL]),
+                    str(current_result[AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL])
+                ]
+                line = ",".join(line_stats) + "\n"
                 file.write(line)
-    
+
     test_end = time.time()
     print("End time:", test_end)
-    print("Time taken:", int((test_end - test_begin) / 60), "mins", int(test_end - test_begin) % 60, "secs")
+    print(
+        "Time taken:",
+        int((test_end - test_begin) / 60),
+        "mins",
+        int(test_end - test_begin) % 60,
+        "secs"
+    )
