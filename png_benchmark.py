@@ -133,7 +133,7 @@ if __name__ == "__main__":
                 time_ns = end - start
                 size_B = buffer.getbuffer().nbytes
                 compression_ratio = 100 * size_B / os.path.getsize(
-                    pathlib.Path(INPUT_PATH, f"{frame_index}.png")
+                    pathlib.Path(INPUT_PATH, f"{frame_index}.png"),
                 )
 
                 min_time_ns, max_time_ns = \
