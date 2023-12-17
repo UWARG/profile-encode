@@ -41,17 +41,37 @@ FRAME_DATA = "frame_data"
 HEADERS = [
     "Compression Type",
     "Compression Level",
-    "Max Time (ms)",
     "Min Time (ms)",
+    "Max Time (ms)",   
     "Avg Time (ms)",
-    "Max Size (B)",
     "Min Size (B)",
+    "Max Size (B)",
     "Avg Size (B)",
-    "Max Size Ratio (compressed to original in %)",
     "Min Size Ratio (compressed to original in %)",
-    "Avg Size Ratio (compressed to original in %)"
+    "Max Size Ratio (compressed to original in %)",
+    "Avg Size Ratio (compressed to original in %)",
 ]
 HEADER_LINE = ",".join(HEADERS) + "\n"
+
+
+def update_min_max(min, max, current_value):
+    """
+    Udpates the min and max values for a measurement.
+
+    Args:
+        min: previous minimum value
+        max: previous maximum value
+        current_value: currently measured value
+
+    Returns: (min, max)
+        min: new updated minimum recorded value
+        max: new updated maximum recorded value
+    """
+    if current_value < min:
+        min = current_value
+    elif current_value > max:
+        max = current_value
+    return min, max
 
 
 if __name__ == "__main__":
@@ -60,16 +80,17 @@ if __name__ == "__main__":
     results = {
         f"compress_type_{compress_type}": {
             f"compress_level_{compress_level}": {
-                MAX_TIME_MS: 0,
                 MIN_TIME_MS: 0,
+                MAX_TIME_MS: 0,
                 AVG_TIME_MS: 0,
-                MAX_SIZE_B: 0,
                 MIN_SIZE_B: 0,
+                MAX_SIZE_B: 0,
                 AVG_SIZE_B: 0,
-                MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,  # % of original size
+                # % of original size
                 MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,
+                MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,
                 AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,
-                FRAME_DATA: []
+                FRAME_DATA: [],
             } for compress_level in range(INITIAL_COMPRESS_LEVEL, MAX_COMPRESS_LEVEL + 1)
         } for compress_type in COMPRESS_TYPES
     }
@@ -81,16 +102,17 @@ if __name__ == "__main__":
     for compress_type in COMPRESS_TYPES:
         print(f"-----------------COMPRESS TYPE {compress_type}--------------------")
         for compress_level in range(INITIAL_COMPRESS_LEVEL, MAX_COMPRESS_LEVEL + 1):
-            max_time_ns = 0
             min_time_ns = float("inf")
+            max_time_ns = 0
             total_time_ns = 0
-            max_size_B = 0
             min_size_B = float("inf")
+            max_size_B = 0
             total_size_B = 0
-            max_compression_ratio = 0
             min_compression_ratio = float("inf")
+            max_compression_ratio = 0
             total_compression_ratio = 0
-            current_result = results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"]
+            current_result = \
+                results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"]
             for frame_index in range(FRAME_COUNT):
                 img = Image.open(pathlib.Path(INPUT_PATH, f"{frame_index}.png"))
                 buffer = io.BytesIO()
@@ -102,7 +124,7 @@ if __name__ == "__main__":
                     buffer,
                     format="PNG",
                     compress_level=compress_level,
-                    compress_type=compress_type
+                    compress_type=compress_type,
                 )
                 end = time.time_ns()
                 gc.enable()
@@ -114,20 +136,12 @@ if __name__ == "__main__":
                     pathlib.Path(INPUT_PATH, f"{frame_index}.png")
                 )
 
-                if time_ns > max_time_ns:
-                    max_time_ns = time_ns
-                elif time_ns < min_time_ns:
-                    min_time_ns = time_ns
-
-                if size_B > max_size_B:
-                    max_size_B = size_B
-                elif size_B < min_size_B:
-                    min_size_B = size_B
-
-                if compression_ratio > max_compression_ratio:
-                    max_compression_ratio = compression_ratio
-                elif compression_ratio < min_compression_ratio:
-                    min_compression_ratio = compression_ratio
+                min_time_ns, max_time_ns = \
+                    update_min_max(min_time_ns, max_time_ns, time_ns)
+                min_size_B, max_size_B = \
+                    update_min_max(min_size_B, max_size_B, size_B)
+                min_compression_ratio, max_compression_ratio = \
+                    update_min_max(min_compression_ratio, max_compression_ratio, compression_ratio)
 
                 total_time_ns += time_ns
                 total_size_B += size_B
@@ -145,19 +159,28 @@ if __name__ == "__main__":
                         pathlib.Path(OUTPUT_PATH, f"ct{compress_type}_cl{compress_level}.png"),
                         format="PNG",
                         compress_level=compress_level,
-                        compress_type=compress_type
+                        compress_type=compress_type,
                     )
 
             # Save average test results
-            current_result[MAX_TIME_MS] = max_time_ns / 1e6
-            current_result[MIN_TIME_MS] = min_time_ns / 1e6
-            current_result[AVG_TIME_MS] = total_time_ns / FRAME_COUNT / 1e6
-            current_result[MAX_SIZE_B] = max_size_B
-            current_result[MIN_SIZE_B] = min_size_B
-            current_result[AVG_SIZE_B] = total_size_B / FRAME_COUNT
-            current_result[MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = max_compression_ratio
-            current_result[MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = min_compression_ratio
-            current_result[AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = total_compression_ratio / FRAME_COUNT
+            current_result[MIN_TIME_MS] = \
+                min_time_ns / 1e6
+            current_result[MAX_TIME_MS] = \
+                max_time_ns / 1e6
+            current_result[AVG_TIME_MS] = \
+                total_time_ns / FRAME_COUNT / 1e6
+            current_result[MIN_SIZE_B] = \
+                min_size_B
+            current_result[MAX_SIZE_B] = \
+                max_size_B
+            current_result[AVG_SIZE_B] = \
+                total_size_B / FRAME_COUNT
+            current_result[MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = \
+                min_compression_ratio
+            current_result[MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = \
+                max_compression_ratio
+            current_result[AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = \
+                total_compression_ratio / FRAME_COUNT
             print(f"Compress level {compress_level} complete")
 
     print("")
@@ -173,19 +196,20 @@ if __name__ == "__main__":
         file.write(HEADER_LINE)
         for compress_type in COMPRESS_TYPES:
             for compress_level in range(INITIAL_COMPRESS_LEVEL, MAX_COMPRESS_LEVEL + 1):
-                current_result = results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"]
+                current_result = \
+                    results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"]
                 line_stats = [
                     str(compress_type),
                     str(compress_level),
-                    str(current_result[MAX_TIME_MS]),
                     str(current_result[MIN_TIME_MS]),
+                    str(current_result[MAX_TIME_MS]),
                     str(current_result[AVG_TIME_MS]),
-                    str(current_result[MAX_SIZE_B]),
                     str(current_result[MIN_SIZE_B]),
+                    str(current_result[MAX_SIZE_B]),
                     str(current_result[AVG_SIZE_B]),
-                    str(current_result[MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL]),
                     str(current_result[MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL]),
-                    str(current_result[AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL])
+                    str(current_result[MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL]),
+                    str(current_result[AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL]),
                 ]
                 line = ",".join(line_stats) + "\n"
                 file.write(line)
@@ -197,5 +221,5 @@ if __name__ == "__main__":
         int((test_end - test_begin) / 60),
         "mins",
         int(test_end - test_begin) % 60,
-        "secs"
+        "secs",
     )
