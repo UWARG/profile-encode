@@ -12,6 +12,7 @@ import json
 import os
 import pathlib
 import time
+from typing import Tuple, Union
 
 from PIL import Image
 
@@ -54,7 +55,11 @@ HEADERS = [
 HEADER_LINE = ",".join(HEADERS) + "\n"
 
 
-def update_min_max(min, max, current_value):
+def update_min_max(
+        min_value: Union[int, float],
+        max_value: Union[int, float],
+        current_value: Union[int, float],
+) -> Tuple[Union[int, float], Union[int, float]]:
     """
     Udpates the min and max values for a measurement.
 
@@ -67,11 +72,12 @@ def update_min_max(min, max, current_value):
         min: new updated minimum recorded value
         max: new updated maximum recorded value
     """
-    if current_value < min:
-        min = current_value
-    elif current_value > max:
-        max = current_value
-    return min, max
+    if current_value < min_value:
+        min_value = current_value
+    elif current_value > max_value:
+        max_value = current_value
+
+    return min_value, max_value
 
 
 if __name__ == "__main__":
@@ -136,12 +142,13 @@ if __name__ == "__main__":
                     pathlib.Path(INPUT_PATH, f"{frame_index}.png"),
                 )
 
-                min_time_ns, max_time_ns = \
-                    update_min_max(min_time_ns, max_time_ns, time_ns)
-                min_size_B, max_size_B = \
-                    update_min_max(min_size_B, max_size_B, size_B)
-                min_compression_ratio, max_compression_ratio = \
-                    update_min_max(min_compression_ratio, max_compression_ratio, compression_ratio)
+                min_time_ns, max_time_ns = update_min_max(min_time_ns, max_time_ns, time_ns)
+                min_size_B, max_size_B = update_min_max(min_size_B, max_size_B, size_B)
+                min_compression_ratio, max_compression_ratio = update_min_max(
+                    min_compression_ratio,
+                    max_compression_ratio,
+                    compression_ratio,
+                )
 
                 total_time_ns += time_ns
                 total_size_B += size_B
@@ -163,22 +170,14 @@ if __name__ == "__main__":
                     )
 
             # Save average test results
-            current_result[MIN_TIME_MS] = \
-                min_time_ns / 1e6
-            current_result[MAX_TIME_MS] = \
-                max_time_ns / 1e6
-            current_result[AVG_TIME_MS] = \
-                total_time_ns / FRAME_COUNT / 1e6
-            current_result[MIN_SIZE_B] = \
-                min_size_B
-            current_result[MAX_SIZE_B] = \
-                max_size_B
-            current_result[AVG_SIZE_B] = \
-                total_size_B / FRAME_COUNT
-            current_result[MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = \
-                min_compression_ratio
-            current_result[MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = \
-                max_compression_ratio
+            current_result[MIN_TIME_MS] = min_time_ns / 1e6
+            current_result[MAX_TIME_MS] = max_time_ns / 1e6
+            current_result[AVG_TIME_MS] = total_time_ns / FRAME_COUNT / 1e6
+            current_result[MIN_SIZE_B] = min_size_B
+            current_result[MAX_SIZE_B] = max_size_B
+            current_result[AVG_SIZE_B] = total_size_B / FRAME_COUNT
+            current_result[MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = min_compression_ratio
+            current_result[MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = max_compression_ratio
             current_result[AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = \
                 total_compression_ratio / FRAME_COUNT
             print(f"Compress level {compress_level} complete")
