@@ -12,7 +12,6 @@ import json
 import os
 import pathlib
 import time
-from typing import Tuple, Union
 
 from PIL import Image
 
@@ -56,10 +55,13 @@ HEADER_LINE = ",".join(HEADERS) + "\n"
 
 
 def update_min_max(
-        min_value: Union[int, float],
-        max_value: Union[int, float],
-        current_value: Union[int, float],
-) -> Tuple[Union[int, float], Union[int, float]]:
+        min_value: "int | float",
+        max_value: "int | float",
+        current_value: "int | float",
+) -> "tuple[int, int] | tuple[float, float]":
+    # The intended output is something like this, but it is not guaranteed
+    # because the inputs could be a combination of int and float.
+    # eg. could also be tuple[float, int]
     """
     Udpates the min and max values for a measurement.
 
