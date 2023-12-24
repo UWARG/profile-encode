@@ -54,25 +54,24 @@ HEADERS = [
 HEADER_LINE = ",".join(HEADERS) + "\n"
 
 
-def update_min_max(
-        min_value: "int | float",
+def update_min_max(min_value: "int | float",
         max_value: "int | float",
-        current_value: "int | float",
-) -> "tuple[int, int] | tuple[float, float]":
-    # The intended output is something like this, but it is not guaranteed
-    # because the inputs could be a combination of int and float.
-    # eg. could also be tuple[float, int]
+        current_value: "int | float",) -> "tuple[int, int] | tuple[float, float]":
     """
-    Udpates the min and max values for a measurement.
+    Updates the min and max values for a measurement.
 
     Args:
-        min: previous minimum value
-        max: previous maximum value
+        min_value: previous minimum value
+        max_value: previous maximum value
         current_value: currently measured value
 
-    Returns: (min, max)
-        min: new updated minimum recorded value
-        max: new updated maximum recorded value
+    Returns: (min_value, max_value)
+        min_value: new updated minimum recorded value
+        max_value: new updated maximum recorded value
+        
+        The intended output is something like [int, int] or [float, float],
+        but it is not guaranteed because the inputs could be a combination of int and float.
+        eg. could also be tuple[float, int]
     """
     if current_value < min_value:
         min_value = current_value
