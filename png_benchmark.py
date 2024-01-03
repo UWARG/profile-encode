@@ -55,8 +55,8 @@ HEADER_LINE = ",".join(HEADERS) + "\n"
 
 
 def update_min_max(min_value: "int | float",
-        max_value: "int | float",
-        current_value: "int | float",) -> "tuple[int, int] | tuple[float, float]":
+                   max_value: "int | float",
+                   current_value: "int | float",) -> "tuple[int, int] | tuple[float, float]":
     """
     Updates the min and max values for a measurement.
 
