@@ -1,2 +1,3 @@
 # Packages listed in alphabetical order
 opencv-python
+Pillow
