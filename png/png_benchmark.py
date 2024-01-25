@@ -81,7 +81,10 @@ def update_min_max(min_value: "int | float",
     return min_value, max_value
 
 
-if __name__ == "__main__":
+def run() -> None:
+    """
+    Runs the benchmark.
+    """
     OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
     results = {
@@ -223,3 +226,7 @@ if __name__ == "__main__":
         int(test_end - test_begin) % 60,
         "secs",
     )
+
+
+if __name__ == "__main__":
+    run()
