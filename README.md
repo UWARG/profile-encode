@@ -22,12 +22,12 @@ constant time for all `compress_level` settings (at around 145ms/image).
 ## AVIF
 
 The entire test takes a very long time to run (~1h).
-The `quality` setting is an integer from `0-100`, but only increments of are tested.
+The `quality` setting is an integer from `0-100`, but only increments of 10 are tested.
 Although `quality=-1` is a valid setting, it is the same as `quality=100`.
 The `chroma` setting is for the chroma subsampling during the compressing process.
 There are 3 settings: `420`, `422`, and `444`.
 `quality=100` represents lossless quality, although it is only lossless in the case when `chroma=444`.
-The results of the test are uploaded to the [Autonomy OneDrive]().
+The results of the test are uploaded to the [Autonomy OneDrive](https://uofwaterloo-my.sharepoint.com/:f:/r/personal/uwarg_uwaterloo_ca/Documents/Subteam%20Folders/Autonomy/Encode%20Test%20Results%202024/AVIF?csf=1&web=1&e=mYWPr7).
 
 ### Quick recap of test results
 
@@ -36,4 +36,4 @@ When the `quality` is from 0 to 20, the picutre quality is bad.
 When the `quality` is from 30 to 40, the picture quality is ok. It is noticable but not too bad.
 When the `quality` is from 50 to 60, the picture quality is good. There is a difference, but it is small.
 When the `quality` is from 70 to 90, the picture quality is great.
-There difference between the original and the compressed version is almost identical.
+The difference between the original and the compressed version is almost identical.
