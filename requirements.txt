@@ -1,3 +1,4 @@
 # Packages listed in alphabetical order
 opencv-python
 Pillow
+pillow-heif
