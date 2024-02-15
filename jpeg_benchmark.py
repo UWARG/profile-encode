@@ -133,7 +133,7 @@ def run():
                 # Save results and append to results array
                 test_result[AVG_TIME_MS] = test_result[TOTAL_TIME_MS]/test_result[FRAME_COUNT]
                 test_result[AVG_SPACE_B] = test_result[TOTAL_SPACE_B]/test_result[FRAME_COUNT]
-                results[f"lossy_{quality}"][f"stimulated_fps_{sfps}"] = test_result
+                results[f"lossy_{quality}"][f"stimulated_fps_{sfps}"].append(test_result)
     
     print("")
     print("-------------------TEST COMPLETED------------------")
