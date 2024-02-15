@@ -68,7 +68,7 @@ def update_min_max(min_value: "int | float",
 def run():
     OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
     print("\n--------------Loading Images----------------\n")
-    images = [Image.open(f"{INPUT_PATH}/{i}.png" for i in range(300))]
+    images = [Image.open(INPUT_PATH / f"{i}.png") for i in range(FRAME_COUNT)]
     print("\n--------------Images Loaded----------------\n")
 
     # Set up results dictionary
@@ -127,13 +127,13 @@ def run():
                     # Find size in bytes
                     frame_size = os.path.getsize(f"./results/{quality_directory}/{sfps}fps/{FILE_NAME}")
                     test_result[FRAME_DATA].append({TOTAL_TIME_MS: end-start, TOTAL_SPACE_B: frame_size})
-                    test_result[TOTAL_SPACE_B] += frame_size
-                    total_space += frame_size
+                    TOTAL_SPACE_B += frame_size
+                    test_result[TOTAL_SPACE_B] += TOTAL_SPACE_B
                 
                 # Save results and append to results array
                 test_result[AVG_TIME_MS] = test_result[TOTAL_TIME_MS]/test_result[FRAME_COUNT]
                 test_result[AVG_SPACE_B] = test_result[TOTAL_SPACE_B]/test_result[FRAME_COUNT]
-                results[f"lossy_{quality}"][f"stimulated_fps_{sfps}"].append(test_result)
+                results[f"lossy_{quality}"][f"stimulated_fps_{sfps}"] = test_result
     
     print("")
     print("-------------------TEST COMPLETED------------------")
