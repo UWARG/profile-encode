@@ -159,7 +159,7 @@ def run():
                     "size_B": size_B,
                     "size_ratio_compressed_to_original_%": compression_ratio
                 }
-                current_result["frame_data"].append(test_result)
+                current_result[FRAME_DATA].append(test_result)
 
                 # Save one image (this one has 2 landing pads in it) for reference
                 if frame_index == FRAME_TO_SAVE:
