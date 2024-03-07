@@ -22,9 +22,11 @@ FRAME_COUNT = 300  # Total number of frames
 FRAME_TO_SAVE = 69  # This frame is good, it has both landing pads in it
 INPUT_PATH = pathlib.Path("test_images", "Encode Test Dataset 2024")
 OUTPUT_PATH = pathlib.Path(f"log_{int(time.time())}")
-COMPRESS_TYPES = [0, 1, 2, 3, 4]  # There are 5 different compression algorithms, each are numbered
-INITIAL_COMPRESS_LEVEL = 1  # Compress level 0 is skipped because it is uncompressed
-MAX_COMPRESS_LEVEL = 6  # Although this maxes out at 9, it takes way too long (like 10s per image)
+
+# All the quality settings to test (-1 should represent 'lossless',
+# although it is only lossless in case of 444 subsampling)
+QUALITY_SETTINGS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+CHROMA_SETTINGS = [420, 422, 444]
 
 # Keys for dictionary entries
 MAX_TIME_MS = "max_time_ms"
@@ -83,13 +85,13 @@ def update_min_max(min_value: "int | float",
 
 
 def run():
-    register_heif_opener()
+    register_heif_opener(thumbnails=False)
 
     OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
     results = {
-        f"compress_type_{compress_type}": {
-            f"compress_level_{compress_level}": {
+        f"quality_{quality}": {
+            f"chroma_{chroma}": {
                 MIN_TIME_MS: 0,
                 MAX_TIME_MS: 0,
                 AVG_TIME_MS: 0,
@@ -101,17 +103,17 @@ def run():
                 MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,
                 AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,
                 FRAME_DATA: [],
-            } for compress_level in range(INITIAL_COMPRESS_LEVEL, MAX_COMPRESS_LEVEL + 1)
-        } for compress_type in COMPRESS_TYPES
+            } for chroma in CHROMA_SETTINGS
+        } for quality in QUALITY_SETTINGS
     }
 
     test_begin = time.time()
     print("Start time:", test_begin)
 
 
-    for compress_type in COMPRESS_TYPES:
-        print(f"-----------------COMPRESS TYPE {compress_type}--------------------")
-        for compress_level in range(INITIAL_COMPRESS_LEVEL, MAX_COMPRESS_LEVEL + 1):
+    for quality in QUALITY_SETTINGS:
+        print(f"-----------------QUALITY = {quality}--------------------")
+        for chroma in CHROMA_SETTINGS:
             min_time_ns = float("inf")
             max_time_ns = 0
             total_time_ns = 0
@@ -122,7 +124,7 @@ def run():
             max_compression_ratio = 0
             total_compression_ratio = 0
             current_result = \
-                results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"]
+                results[f"quality_{quality}"][f"chroma_{chroma}"]
             for frame_index in range(FRAME_COUNT):
                 img = Image.open(pathlib.Path(INPUT_PATH, f"{frame_index}.png"))
                 buffer = io.BytesIO()
@@ -133,8 +135,8 @@ def run():
                 img.save(
                     buffer,
                     format="HEIF",
-                    compress_level=compress_level,
-                    compress_type=compress_type,
+                    quality=quality,
+                    chroma=chroma,
                 )
                 end = time.time_ns()
                 gc.enable()
@@ -167,10 +169,10 @@ def run():
                 # Save one image (this one has 2 landing pads in it) for reference
                 if frame_index == FRAME_TO_SAVE:
                     img.save(
-                        pathlib.Path(OUTPUT_PATH, f"ct{compress_type}_cl{compress_level}.png"),
-                        format="PNG",
-                        compress_level=compress_level,
-                        compress_type=compress_type,
+                        pathlib.Path(OUTPUT_PATH, f"q{quality}_c{chroma}.heif"),
+                        format="HEIF",
+                        quality=quality,
+                        chroma=chroma,
                     )
 
             # Save average test results
@@ -184,7 +186,7 @@ def run():
             current_result[MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = max_compression_ratio
             current_result[AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = \
                 total_compression_ratio / FRAME_COUNT
-            print(f"Compress level {compress_level} complete")
+            print(f"chroma {chroma} complete")
 
     print("")
     print("-------------------TEST COMPLETED------------------")
@@ -197,13 +199,13 @@ def run():
     # Saving shortcut results without frame data (for more human readability)
     with open(pathlib.Path(OUTPUT_PATH, "summary.csv"), 'w', encoding="utf-8") as file:
         file.write(HEADER_LINE)
-        for compress_type in COMPRESS_TYPES:
-            for compress_level in range(INITIAL_COMPRESS_LEVEL, MAX_COMPRESS_LEVEL + 1):
+        for quality in QUALITY_SETTINGS:
+            for chroma in CHROMA_SETTINGS:
                 current_result = \
-                    results[f"compress_type_{compress_type}"][f"compress_level_{compress_level}"]
+                    results[f"quality_{quality}"][f"chroma_{chroma}"]
                 line_stats = [
-                    str(compress_type),
-                    str(compress_level),
+                    str(quality),
+                    str(chroma),
                     str(current_result[MIN_TIME_MS]),
                     str(current_result[MAX_TIME_MS]),
                     str(current_result[AVG_TIME_MS]),
