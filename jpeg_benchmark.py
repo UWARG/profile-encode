@@ -104,7 +104,7 @@ def run():
         max_compression_ratio = 0
         total_compression_ratio = 0
 
-        current_result = results[f"quality_{quality}"]
+        current_result = results[f"lossy_{quality}"]
 
         for frame_index in range(FRAME_COUNT):
             image = Image.open(pathlib.Path(INPUT_PATH, f"{frame_index}.png")) # load one at a time
