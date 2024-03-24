@@ -132,9 +132,10 @@ def main() -> int:
 
             time_ns = end - start
             size_B = buffer.getbuffer().nbytes
-            compression_ratio = (
-                100 * size_B / os.path.getsize(pathlib.Path(INPUT_PATH, f"{frame_index}.png"))
+            original_size_B = os.path.getsize(
+                pathlib.Path(INPUT_PATH, f"{frame_index}.png"),
             )
+            compression_ratio = 100 * size_B / original_size_B
 
             min_time_ns, max_time_ns = update_min_max(min_time_ns, max_time_ns, time_ns)
             min_size_B, max_size_B = update_min_max(min_size_B, max_size_B, size_B)
