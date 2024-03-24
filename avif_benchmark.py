@@ -6,6 +6,7 @@ Creates a folder with a compressed image for each quality setting to visually ch
 as well as a .json with the test data and a .csv which provides a more human-friendly summary
 of the data.
 """
+
 import gc
 import io
 import json
@@ -21,7 +22,7 @@ import pillow_heif
 FRAME_COUNT = 300  # Total number of frames
 FRAME_TO_SAVE = 69  # This frame is good, it has both landing pads in it
 INPUT_PATH = pathlib.Path("test_images", "Encode Test Dataset 2024")
-OUTPUT_PATH = pathlib.Path(f"log_{int(time.time())}")
+OUTPUT_PATH = pathlib.Path("logs", str(int(time.time())))
 # All the quality settings to test (-1 should represent 'lossless',
 # although it is only lossless in case of 444 subsampling)
 QUALITY_SETTINGS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
@@ -44,7 +45,7 @@ HEADERS = [
     "Quality",
     "Chroma",
     "Min Time (ms)",
-    "Max Time (ms)",   
+    "Max Time (ms)",
     "Avg Time (ms)",
     "Min Size (B)",
     "Max Size (B)",
@@ -56,9 +57,11 @@ HEADERS = [
 HEADER_LINE = ",".join(HEADERS) + "\n"
 
 
-def update_min_max(min_value: "int | float",
-                   max_value: "int | float",
-                   current_value: "int | float",) -> "tuple[int, int] | tuple[float, float]":
+def update_min_max(
+    min_value: "int | float",
+    max_value: "int | float",
+    current_value: "int | float",
+) -> "tuple[int, int] | tuple[float, float]":
     """
     Updates the min and max values for a measurement.
 
@@ -70,7 +73,7 @@ def update_min_max(min_value: "int | float",
     Returns: (min_value, max_value)
         min_value: new updated minimum recorded value
         max_value: new updated maximum recorded value
-        
+
         The intended output is something like [int, int] or [float, float],
         but it is not guaranteed because the inputs could be a combination of int and float.
         eg. could also be tuple[float, int]
@@ -83,7 +86,10 @@ def update_min_max(min_value: "int | float",
     return min_value, max_value
 
 
-def run():
+def main() -> int:
+    """
+    Main function.
+    """
     pillow_heif.register_avif_opener(thumbnails=False)
 
     OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
@@ -102,13 +108,14 @@ def run():
                 MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,
                 AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,
                 FRAME_DATA: [],
-            } for chroma in CHROMA_SETTINGS
-        } for quality in QUALITY_SETTINGS
+            }
+            for chroma in CHROMA_SETTINGS
+        }
+        for quality in QUALITY_SETTINGS
     }
 
     test_begin = time.time()
     print("Start time:", test_begin)
-
 
     for quality in QUALITY_SETTINGS:
         print(f"-----------------QUALITY = {quality}--------------------")
@@ -145,9 +152,10 @@ def run():
                 # Save singular test results
                 time_ns = end - start
                 size_B = buffer.getbuffer().nbytes
-                compression_ratio = 100 * size_B / os.path.getsize(
+                original_size_B = os.path.getsize(
                     pathlib.Path(INPUT_PATH, f"{frame_index}.png"),
                 )
+                compression_ratio = 100 * size_B / original_size_B
 
                 min_time_ns, max_time_ns = update_min_max(min_time_ns, max_time_ns, time_ns)
                 min_size_B, max_size_B = update_min_max(min_size_B, max_size_B, size_B)
@@ -163,7 +171,7 @@ def run():
                 test_result = {
                     "time_ns": time_ns,
                     "size_B": size_B,
-                    "size_ratio_compressed_to_original_%": compression_ratio
+                    "size_ratio_compressed_to_original_%": compression_ratio,
                 }
                 current_result[FRAME_DATA].append(test_result)
 
@@ -185,8 +193,9 @@ def run():
             current_result[AVG_SIZE_B] = total_size_B / FRAME_COUNT
             current_result[MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = min_compression_ratio
             current_result[MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = max_compression_ratio
-            current_result[AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = \
+            current_result[AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = (
                 total_compression_ratio / FRAME_COUNT
+            )
             print(f"chroma {chroma} completed")
 
     print("")
@@ -194,11 +203,11 @@ def run():
     print("")
 
     # Saving full results
-    with open(pathlib.Path(OUTPUT_PATH, "results.json"), 'w', encoding="utf-8") as file:
+    with open(pathlib.Path(OUTPUT_PATH, "results.json"), "w", encoding="utf-8") as file:
         file.write(json.dumps(results, indent=2))
 
     # Saving shortcut results without frame data (for more human readability)
-    with open(pathlib.Path(OUTPUT_PATH, "summary.csv"), 'w', encoding="utf-8") as file:
+    with open(pathlib.Path(OUTPUT_PATH, "summary.csv"), "w", encoding="utf-8") as file:
         file.write(HEADER_LINE)
         for quality in QUALITY_SETTINGS:
             for chroma in CHROMA_SETTINGS:
@@ -229,6 +238,12 @@ def run():
         "secs",
     )
 
+    return 0
+
 
 if __name__ == "__main__":
-    run()
+    result_main = main()
+    if result_main < 0:
+        print(f"ERROR: Status code: {result_main}")
+
+    print("Done!")

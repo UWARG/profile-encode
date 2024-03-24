@@ -1,11 +1,16 @@
+"""
+Benchmarks JPEG encoding.
+"""
+
 import gc
 import io
 import json
 import os
 import pathlib
 import time
-import datetime
+
 from PIL import Image
+
 
 # Setting parameters
 FRAME_COUNT = 300
@@ -31,7 +36,7 @@ QUALITY_SETTINGS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 HEADERS = [
     "Quality",
     "Min Time (ms)",
-    "Max Time (ms)",   
+    "Max Time (ms)",
     "Avg Time (ms)",
     "Min Size (B)",
     "Max Size (B)",
@@ -42,9 +47,12 @@ HEADERS = [
 ]
 HEADER_LINE = ",".join(HEADERS) + "\n"
 
-def update_min_max(min_value: "int | float",
-                   max_value: "int | float",
-                   current_value: "int | float",) -> "tuple[int, int] | tuple[float, float]":
+
+def update_min_max(
+    min_value: "int | float",
+    max_value: "int | float",
+    current_value: "int | float",
+) -> "tuple[int, int] | tuple[float, float]":
     """
     Updates the min and max values for a measurement.
 
@@ -56,7 +64,7 @@ def update_min_max(min_value: "int | float",
     Returns: (min_value, max_value)
         min_value: new updated minimum recorded value
         max_value: new updated maximum recorded value
-        
+
         The intended output is something like [int, int] or [float, float],
         but it is not guaranteed because the inputs could be a combination of int and float.
         eg. could also be tuple[float, int]
@@ -68,7 +76,11 @@ def update_min_max(min_value: "int | float",
 
     return min_value, max_value
 
-def run():
+
+def main() -> int:
+    """
+    Main function.
+    """
     OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
     # Set up results dictionary
@@ -84,8 +96,9 @@ def run():
             MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,
             MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,
             AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL: 0,
-            FRAME_DATA: [],    
-        } for quality in QUALITY_SETTINGS
+            FRAME_DATA: [],
+        }
+        for quality in QUALITY_SETTINGS
     }
 
     test_begin = time.time()
@@ -107,25 +120,22 @@ def run():
         current_result = results[f"lossy_{quality}"]
 
         for frame_index in range(FRAME_COUNT):
-            image = Image.open(pathlib.Path(INPUT_PATH, f"{frame_index}.png")) # load one at a time
+            image = Image.open(pathlib.Path(INPUT_PATH, f"{frame_index}.png"))  # load one at a time
             buffer = io.BytesIO()
 
             # Encode the frame with specified settings and time
             gc.disable()
             start = time.time_ns()
-            image.save(
-                buffer,
-                format="JPEG",
-                quality=quality
-            )
+            image.save(buffer, format="JPEG", quality=quality)
             end = time.time_ns()
             gc.enable()
 
             time_ns = end - start
             size_B = buffer.getbuffer().nbytes
-            compression_ratio = 100 * size_B / os.path.getsize(
-                pathlib.Path(INPUT_PATH, f"{frame_index}.png")
+            original_size_B = os.path.getsize(
+                pathlib.Path(INPUT_PATH, f"{frame_index}.png"),
             )
+            compression_ratio = 100 * size_B / original_size_B
 
             min_time_ns, max_time_ns = update_min_max(min_time_ns, max_time_ns, time_ns)
             min_size_B, max_size_B = update_min_max(min_size_B, max_size_B, size_B)
@@ -141,17 +151,13 @@ def run():
             test_result = {
                 "time_ns": time_ns,
                 "size_B": size_B,
-                "size_ratio_compressed_to_original_%": compression_ratio
+                "size_ratio_compressed_to_original_%": compression_ratio,
             }
             current_result[FRAME_DATA].append(test_result)
 
             # Save one image (this one has 2 landing pads in it) for reference
             if frame_index == FRAME_TO_SAVE:
-                image.save(
-                    OUTPUT_PATH / f"q{quality}.jpeg",
-                    format="JPEG",
-                    quality=quality
-                )
+                image.save(OUTPUT_PATH / f"q{quality}.jpeg", format="JPEG", quality=quality)
 
         # Save average test results
         current_result[MIN_TIME_MS] = min_time_ns / 1e6
@@ -162,20 +168,21 @@ def run():
         current_result[AVG_SIZE_B] = total_size_B / FRAME_COUNT
         current_result[MIN_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = min_compression_ratio
         current_result[MAX_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = max_compression_ratio
-        current_result[AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = \
+        current_result[AVG_SIZE_RATIO_COMPRESSED_TO_ORIGINAL] = (
             total_compression_ratio / FRAME_COUNT
+        )
         print(f"Quality {quality} complete")
-    
+
     print("")
     print("-------------------TEST COMPLETED------------------")
     print("")
 
     # Saving full results
-    with open(pathlib.Path(OUTPUT_PATH, "results.json"), 'w', encoding="utf-8") as file:
+    with open(pathlib.Path(OUTPUT_PATH, "results.json"), "w", encoding="utf-8") as file:
         file.write(json.dumps(results, indent=2))
 
     # Saving shortcut results without frame data (for more human readability)
-    with open(pathlib.Path(OUTPUT_PATH, "summary.csv"), 'w', encoding="utf-8") as file:
+    with open(pathlib.Path(OUTPUT_PATH, "summary.csv"), "w", encoding="utf-8") as file:
         file.write(HEADER_LINE)
         for quality in QUALITY_SETTINGS:
             current_result = results[f"lossy_{quality}"]
@@ -204,5 +211,12 @@ def run():
         "secs",
     )
 
+    return 0
+
+
 if __name__ == "__main__":
-    run()
+    result_main = main()
+    if result_main < 0:
+        print(f"ERROR: Status code: {result_main}")
+
+    print("Done!")
