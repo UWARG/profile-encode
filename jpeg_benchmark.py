@@ -16,7 +16,7 @@ from PIL import Image
 FRAME_COUNT = 300
 FRAME_TO_SAVE = 69
 INPUT_PATH = pathlib.Path("test_images", "Encode Test Dataset 2024")
-OUTPUT_PATH = pathlib.Path(f"log_{int(time.time())}")
+OUTPUT_PATH = pathlib.Path("logs", str(int(time.time())))
 
 # Keys for dictionary entries
 MAX_TIME_MS = "max_time_ms"
@@ -157,7 +157,11 @@ def main() -> int:
 
             # Save one image (this one has 2 landing pads in it) for reference
             if frame_index == FRAME_TO_SAVE:
-                image.save(OUTPUT_PATH / f"q{quality}.jpeg", format="JPEG", quality=quality)
+                image.save(
+                    pathlib.Path(OUTPUT_PATH, f"q{quality}.jpeg"),
+                    format="JPEG",
+                    quality=quality,
+                )
 
         # Save average test results
         current_result[MIN_TIME_MS] = min_time_ns / 1e6
