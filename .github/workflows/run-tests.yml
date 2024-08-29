@@ -47,8 +47,3 @@ jobs:
           black --check .
           flake8 .
           pylint .
-
-      # Install dependencies and run tests with PyTest
-      # TODO: Uncomment when there are unit tests to run
-      # - name: Run PyTest
-      #   run: pytest -vv
